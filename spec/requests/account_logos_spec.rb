@@ -110,4 +110,19 @@ describe 'Account logo' do
       expect(Accounts.load_logo(testing).blob).to eq(main.logo.blob)
     end
   end
+
+  describe 'QR code poster' do
+    let(:template) do
+      create(:template, shared_link: true, account:, author: user, folder: create(:template_folder, account:))
+    end
+
+    it 'shows the company logo instead of the DocuSeal mark' do
+      post settings_logo_path, params: { file: sample_logo }
+
+      get template_share_link_qr_path(template)
+
+      expect(response.body).to include(ActiveStorage::Blob.proxy_path(account.reload.logo.blob))
+      expect(response.body).to include('DocuSeal')
+    end
+  end
 end

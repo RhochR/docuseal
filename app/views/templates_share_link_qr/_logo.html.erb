@@ -1,2 +1,6 @@
-<%= render 'shared/logo' %>
-<span><%= Docuseal.product_name %></span>
+<% logo = Accounts.load_logo(@template.account) %>
+<% if logo %>
+  <%= render 'start_form/account_logo', logo:, account: @template.account %>
+<% else %>
+  <%= render 'shared/logo' %>
+<% end %>
