@@ -192,6 +192,34 @@ class SubmitterMailer < ApplicationMailer
 
   private
 
+  # A custom HTML template is a complete document: it is sent as it is (after EmailHtml cleaned it and added the
+  # attribution) instead of being wrapped into the mailer layout.
+  def mail(headers = {}, &)
+    return super unless EmailMessages.html_body?(@body)
+
+    html = EmailHtml.call(@body, submitter: @submitter, sig: @sig, link_url: build_html_fallback_link_url,
+                                 attribution_html: render_to_string(partial: 'shared/mailer_attribution',
+                                                                    formats: [:html]))
+
+    super do |format|
+      format.html { render html: html.html_safe, layout: false } # rubocop:disable Rails/OutputSafety
+    end
+  end
+
+  def build_html_fallback_link_url
+    return unless action_name.in?(%w[invitation_email invitation_view_email])
+    return if @submitter.submission.source.in?(%w[api embed])
+
+    link_variables = [ReplaceEmailVariables::SUBMITTER_LINK, ReplaceEmailVariables::SUBMITTER_ID,
+                      ReplaceEmailVariables::SUBMISSION_LINK, ReplaceEmailVariables::TEMPLATE_ID]
+
+    return if link_variables.any? { |regexp| @body.match?(regexp) }
+
+    submit_form_url(slug: @submitter.slug,
+                    t: SubmissionEvents.build_tracking_param(@submitter, 'click_email'),
+                    host: @custom_domain || ENV.fetch('EMAIL_HOST', Docuseal.default_url_options[:host]))
+  end
+
   def build_submitter_reply_to(submitter, email_config: nil, documents_copy_email: nil)
     reply_to = submitter.preferences['reply_to'].presence
     reply_to ||= submitter.template&.preferences&.dig('documents_copy_email_reply_to').presence if documents_copy_email
