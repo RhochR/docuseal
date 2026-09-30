@@ -33,6 +33,22 @@ module Accounts
     new_account
   end
 
+  # Company logo shown on the signing pages, in emails and in the audit log. Testing accounts use the logo
+  # of the account they belong to.
+  def load_logo(account)
+    return if account.nil?
+
+    logo = account.logo.attachment
+
+    if logo.nil? && account.testing?
+      main_account = account.linked_account_account&.account
+
+      logo = main_account.logo.attachment if main_account
+    end
+
+    logo if logo&.blob
+  end
+
   def users_count(account)
     rel = User.where(account_id: account.id).or(
       User.where(account_id: account.account_linked_accounts
