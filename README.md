@@ -1,38 +1,41 @@
 <h1 align="center" style="border-bottom: none">
   <div>
-    <a href="https://www.docuseal.com">
-      <img  alt="DocuSeal" src="https://github.com/user-attachments/assets/38b45682-ffa4-4919-abde-d2d422325c44" width="80" />
-      <br>
-    </a>
-    DocuSeal
+    <img alt="DocuSeal" src="https://github.com/user-attachments/assets/38b45682-ffa4-4919-abde-d2d422325c44" width="80" />
+    <br>
+    DocuSeal (Fork)
   </div>
 </h1>
 <h3 align="center">
   Open source document filling and signing
 </h3>
-<p align="center">
-  <a href="https://hub.docker.com/r/docuseal/docuseal">
-    <img alt="Docker releases" src="https://img.shields.io/docker/v/docuseal/docuseal">
-  </a>
-  <a href="https://discord.gg/qygYCDGck9">
-    <img src="https://img.shields.io/discord/1125112641170448454?logo=discord"/>
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=docusealco">
-    <img src="https://img.shields.io/twitter/follow/docusealco?style=social" alt="Follow @docusealco" />
-  </a>
-</p>
-<p>
-DocuSeal is an open source platform that provides secure and efficient digital document signing and processing. Create PDF forms to have them filled and signed online on any device with an easy-to-use, mobile-optimized web tool.
-</p>
-<h2 align="center">
-  <a href="https://demo.docuseal.tech">✨ Live Demo</a>
-  <span>|</span>
-  <a href="https://docuseal.com/sign_up">☁️ Try in Cloud</a>
-</h2>
 
-[![Demo](https://github.com/docusealco/docuseal/assets/5418788/d8703ea3-361a-423f-8bfe-eff1bd9dbe14)](https://demo.docuseal.tech)
+> [!WARNING]
+> **Hinweis (Deutsch)**
+>
+> Dieses Repository ist ein Fork von [DocuSeal](https://github.com/docusealco/docuseal). Die Änderungen gegenüber dem Original wurden mit Hilfe eines KI-Assistenten geschrieben. Es ist ein Experiment und kein ernst gemeintes Projekt: Es gibt keinen Support und keine Gewähr, und es ist nicht für den produktiven Einsatz, für sensible oder rechtlich bindende Dokumente gedacht. Nutzung auf eigene Verantwortung.
+>
+> Der Fork hat nichts mit DocuSeal LLC zu tun, wird nicht mit dem Originalprojekt zusammengeführt und ist kein offizielles Produkt.
+>
+> **Notice (English)**
+>
+> This repository is a fork of [DocuSeal](https://github.com/docusealco/docuseal). The changes compared to the original were written with the help of an AI assistant. It is an experiment and not a serious project: there is no support and no warranty, and it is not meant for production use or for sensitive or legally binding documents. Use it at your own risk.
+>
+> The fork is not affiliated with DocuSeal LLC, it will not be merged back into the original project and it is not an official product.
 
-## Features
+## What this fork changes
+
+Some features that the original project only offers in its commercial version are implemented here from scratch (no code of the commercial version is used):
+
+- **Conditional fields**: show fields depending on the value of other fields.
+- **Formula fields**: calculate number, date and text fields from other fields. The result is also computed on the server when the form is submitted.
+- **Company logo**: shown on the signing pages, in emails, in the audit log and in the signature stamp.
+- **HTML email templates**: write invitation, completed and documents copy emails as HTML, in the account settings, per template or per submission.
+- **Bulk send from a spreadsheet**: import a CSV or XLSX file, map its columns to recipients and prefilled fields and create one submission per row.
+
+Emails are sent from the address configured in the SMTP settings.
+
+## Features of DocuSeal
+
 - PDF form fields builder (WYSIWYG)
 - 12 field types available (Signature, Date, File, Checkbox etc.)
 - Multiple submitters per document
@@ -44,64 +47,25 @@ DocuSeal is an open source platform that provides secure and efficient digital d
 - Mobile-optimized
 - 7 UI languages with signing available in 14 languages
 - API and Webhooks for integrations
-- Easy to deploy in minutes
 
-## Pro Features
-- Company logo and white-label
-- User roles
-- Automated reminders
-- Invitation and identity verification via SMS
-- Conditional fields and formulas
-- Bulk send with CSV, XLSX spreadsheet import
-- SSO / SAML
-- Template creation with HTML API ([Guide](https://www.docuseal.com/guides/create-pdf-document-fillable-form-with-html-api))
-- Template creation with PDF or DOCX and field tags API ([Guide](https://www.docuseal.com/guides/use-embedded-text-field-tags-in-the-pdf-to-create-a-fillable-form))
-- Embedded signing form ([React](https://github.com/docusealco/docuseal-react), [Vue](https://github.com/docusealco/docuseal-vue), [Angular](https://github.com/docusealco/docuseal-angular) or [JavaScript](https://www.docuseal.com/docs/embedded))
-- Embedded document form builder ([React](https://github.com/docusealco/docuseal-react), [Vue](https://github.com/docusealco/docuseal-vue), [Angular](https://github.com/docusealco/docuseal-angular) or [JavaScript](https://www.docuseal.com/docs/embedded))
-- [Learn more](https://www.docuseal.com/pricing)
+Not part of this fork (offered by the original project in its commercial version): user roles, automated reminders, invitation and identity verification via SMS, SSO / SAML, template creation from HTML, PDF or DOCX through the API, and the embedded signing form and form builder.
 
-## Deploy
+## Running it
 
-|Heroku|Railway|
-|:--:|:---:|
-| [<img alt="Deploy on Heroku" src="https://www.herokucdn.com/deploy/button.svg" height="40">](https://heroku.com/deploy?template=https://github.com/docusealco/docuseal-heroku) | [<img alt="Deploy on Railway" src="https://railway.app/button.svg" height="40">](https://railway.com/deploy/IGoDnc?referralCode=ruU7JR)|
-|**DigitalOcean**|**Render**|
-| [<img alt="Deploy on DigitalOcean" src="https://www.deploytodo.com/do-btn-blue.svg" height="40">](https://cloud.digitalocean.com/apps/new?repo=https://github.com/docusealco/docuseal-digitalocean/tree/master&refcode=421d50f53990) | [<img alt="Deploy to Render" src="https://render.com/images/deploy-to-render-button.svg" height="40">](https://render.com/deploy?repo=https://github.com/docusealco/docuseal-render)
+By default the app uses an SQLite database. Set the `DATABASE_URL` environment variable to use PostgreSQL or MySQL instead.
 
-#### Docker
+The `docker-compose.yml`, the Docker Hub image and the deploy buttons of the original project start the original DocuSeal, not this fork. To run the fork, build the image from the `Dockerfile` in this repository (the `Dockerfile` copies a `.version` file, so create one first) and use it instead of `docuseal/docuseal`:
 
 ```sh
-docker run --name docuseal -p 3000:3000 -v.:/data docuseal/docuseal
+echo "fork" > .version
+docker build -t docuseal-fork .
+docker run --name docuseal -p 3000:3000 -v "$PWD":/data docuseal-fork
 ```
 
-By default DocuSeal docker container uses an SQLite database to store data and configurations. Alternatively, it is possible to use PostgreSQL or MySQL databases by specifying the `DATABASE_URL` env variable.
-
-#### Docker Compose
-
-Download docker-compose.yml into your private server:
-```sh
-curl https://raw.githubusercontent.com/docusealco/docuseal/master/docker-compose.yml > docker-compose.yml
-```
-
-Run the app under a custom domain over https using docker compose (make sure your DNS points to the server to automatically issue ssl certs with Caddy):
-```sh
-sudo HOST=your-domain-name.com docker compose up
-```
-
-## For Businesses
-### Integrate seamless document signing into your web or mobile apps with DocuSeal
-
-At DocuSeal we have expertise and technologies to make documents creation, filling, signing and processing seamlessly integrated with your product. We specialize in working with various industries, including **Banking, Healthcare, Transport, Real Estate, eCommerce, KYC, CRM, and other software products** that require bulk document signing. By leveraging DocuSeal, we can assist in reducing the overall cost of developing and processing electronic documents while ensuring security and compliance with local electronic document laws.
-
-[Book a Meeting](https://www.docuseal.com/contact)
+For development you need Ruby (see the `Gemfile` for the version), Node.js with Yarn and PostgreSQL. Run `bundle install`, `yarn install` and `bin/rails db:create db:migrate`, then `bundle exec foreman start -f Procfile.dev`. The tests run with `bundle exec rspec`.
 
 ## License
 
-Distributed under the AGPLv3 License with Section 7(b) Additional Terms. See [LICENSE](https://github.com/docusealco/docuseal/blob/master/LICENSE) and [LICENSE_ADDITIONAL_TERMS](https://github.com/docusealco/docuseal/blob/master/LICENSE_ADDITIONAL_TERMS) for more information.
-Unless otherwise noted, all files © 2023-2026 DocuSeal LLC.
+Distributed under the AGPLv3 License with Section 7(b) Additional Terms. See [LICENSE](LICENSE) and [LICENSE_ADDITIONAL_TERMS](LICENSE_ADDITIONAL_TERMS) for more information. The original DocuSeal attribution ("Powered by DocuSeal") stays in the user interface and in emails and can not be turned off.
 
-## Tools
-
-- [Signature Maker](https://www.docuseal.com/online-signature)
-- [Sign Document Online](https://www.docuseal.com/sign-documents-online)
-- [Fill PDF Online](https://www.docuseal.com/fill-pdf)
+Unless otherwise noted, all files © 2023-2026 DocuSeal LLC. Changes in this fork are published under the same license.
