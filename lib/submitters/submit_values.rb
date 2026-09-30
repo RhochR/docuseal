@@ -256,16 +256,16 @@ module Submitters
       end
     end
 
-    def calculate_formula_value(_formula, _values, _submission)
-      0
+    def calculate_formula_value(formula, values, submission)
+      FormulaCalculator.calculate(formula, values, submission)
     end
 
-    def calculate_date_formula_value(_formula, _values, _submission)
-      nil
+    def calculate_date_formula_value(formula, values, submission)
+      FormulaCalculator.calculate_date(formula, values, submission)
     end
 
-    def eval_text_formula_value(_formula, _values, _submission)
-      ''
+    def eval_text_formula_value(formula, values, submission)
+      FormulaCalculator.eval_text(formula, values, submission)
     end
 
     def replace_current_date_placeholders(submitter)
