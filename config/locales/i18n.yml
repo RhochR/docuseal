@@ -664,6 +664,9 @@ en: &en
   account_has_been_updated: Account has been updated.
   account_has_been_removed: Account has been removed.
   logo_has_been_uploaded: Logo has been uploaded.
+  unable_to_upload_logo: "Unable to upload the logo. Use a PNG or JPEG image up to 2 MB."
+  logo_has_been_removed: "Logo has been removed."
+  logo_upload_hint: "PNG or JPEG up to 2 MB. A transparent PNG of about 400x400 pixels works best."
   invalid_file_type: Invalid file type
   upload_file: Upload file
   upgrade_your_plan_to_invite_more_users_contact_email: 'Upgrade your plan to invite more users (contact %{email}).'
@@ -1821,6 +1824,9 @@ es: &es
   account_has_been_updated: La cuenta ha sido actualizada.
   account_has_been_removed: La cuenta ha sido eliminada.
   logo_has_been_uploaded: El logotipo ha sido subido.
+  unable_to_upload_logo: "No se pudo subir el logo. Use una imagen PNG o JPEG de hasta 2 MB."
+  logo_has_been_removed: "El logo ha sido eliminado."
+  logo_upload_hint: "PNG o JPEG de hasta 2 MB. Funciona mejor un PNG transparente de unos 400x400 píxeles."
   invalid_file_type: Tipo de archivo no válido
   upload_file: Subir archivo
   upgrade_your_plan_to_invite_more_users_contact_email: 'Actualiza tu plan para invitar a más usuarios (contacta a %{email}).'
@@ -2981,6 +2987,9 @@ it: &it
   account_has_been_updated: "L'account è stato aggiornato."
   account_has_been_removed: "L'account è stato rimosso."
   logo_has_been_uploaded: Il logo è stato caricato.
+  unable_to_upload_logo: "Impossibile caricare il logo. Usa un'immagine PNG o JPEG fino a 2 MB."
+  logo_has_been_removed: "Il logo è stato rimosso."
+  logo_upload_hint: "PNG o JPEG fino a 2 MB. Funziona meglio un PNG trasparente di circa 400x400 pixel."
   invalid_file_type: Tipo di file non valido
   upload_file: Carica file
   upgrade_your_plan_to_invite_more_users_contact_email: 'Aggiorna il tuo piano per invitare più utenti (contatta %{email}).'
@@ -4127,6 +4136,9 @@ fr: &fr
   account_has_been_updated: Le compte a été mis à jour.
   account_has_been_removed: Le compte a été supprimé.
   logo_has_been_uploaded: Le logo a été téléversé.
+  unable_to_upload_logo: "Impossible de téléverser le logo. Utilisez une image PNG ou JPEG de 2 Mo maximum."
+  logo_has_been_removed: "Le logo a été supprimé."
+  logo_upload_hint: "PNG ou JPEG de 2 Mo maximum. Un PNG transparent d'environ 400x400 pixels donne le meilleur résultat."
   invalid_file_type: Type de fichier invalide
   upload_file: Téléverser un fichier
   upgrade_your_plan_to_invite_more_users_contact_email: Mettez à niveau votre formule pour inviter davantage d’utilisateurs (contact %{email}).
@@ -5283,6 +5295,9 @@ pt: &pt
   account_has_been_updated: A conta foi atualizada.
   account_has_been_removed: A conta foi removida.
   logo_has_been_uploaded: O logotipo foi enviado.
+  unable_to_upload_logo: "Não foi possível enviar o logotipo. Use uma imagem PNG ou JPEG de até 2 MB."
+  logo_has_been_removed: "O logotipo foi removido."
+  logo_upload_hint: "PNG ou JPEG de até 2 MB. Um PNG transparente de cerca de 400x400 pixels funciona melhor."
   invalid_file_type: Tipo de arquivo inválido
   upload_file: Enviar arquivo
   upgrade_your_plan_to_invite_more_users_contact_email: 'Faça upgrade do seu plano para convidar mais usuários (contato %{email}).'
@@ -6442,6 +6457,9 @@ de: &de
   account_has_been_updated: Das Konto wurde aktualisiert.
   account_has_been_removed: Das Konto wurde entfernt.
   logo_has_been_uploaded: Das Logo wurde hochgeladen.
+  unable_to_upload_logo: "Das Logo konnte nicht hochgeladen werden. Verwenden Sie ein PNG- oder JPEG-Bild bis 2 MB."
+  logo_has_been_removed: "Das Logo wurde entfernt."
+  logo_upload_hint: "PNG oder JPEG bis 2 MB. Am besten eignet sich ein transparentes PNG mit etwa 400x400 Pixeln."
   invalid_file_type: Ungültiger Dateityp
   upload_file: Datei hochladen
   upgrade_your_plan_to_invite_more_users_contact_email: 'Führen Sie ein Upgrade durch, um mehr Benutzer einzuladen (Kontakt %{email}).'
@@ -8129,6 +8147,9 @@ nl: &nl
   account_has_been_updated: Account is bijgewerkt.
   account_has_been_removed: Account is verwijderd.
   logo_has_been_uploaded: Logo is geüpload.
+  unable_to_upload_logo: "Het logo kon niet worden geüpload. Gebruik een PNG- of JPEG-afbeelding tot 2 MB."
+  logo_has_been_removed: "Het logo is verwijderd."
+  logo_upload_hint: "PNG of JPEG tot 2 MB. Een transparante PNG van ongeveer 400x400 pixels werkt het best."
   invalid_file_type: Ongeldig bestandstype
   upload_file: Bestand uploaden
   upgrade_your_plan_to_invite_more_users_contact_email: Upgrade uw abonnement om meer gebruikers uit te nodigen (contact %{email}).

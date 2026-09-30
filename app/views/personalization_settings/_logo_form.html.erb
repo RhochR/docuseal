@@ -1,1 +1,40 @@
-<%= render 'logo_placeholder' %>
+<% logo = Accounts.load_logo(current_account) %>
+<div class="bg-base-200 rounded-box p-5 space-y-4">
+  <p class="text-sm text-gray-700">
+    <%= t('display_your_company_name_and_logo_when_signing_documents') %>
+    <%= t('logo_upload_hint') %>
+  </p>
+  <% if logo %>
+    <div class="flex items-center justify-between gap-4">
+      <div class="bg-white border border-base-300 rounded-xl p-3">
+        <img src="<%= ActiveStorage::Blob.proxy_path(logo.blob) %>" alt="<%= current_account.name %>" class="max-h-16 max-w-[12rem] object-contain">
+      </div>
+      <%= button_to t('remove'), settings_logo_path, method: :delete, class: 'link', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+    </div>
+  <% end %>
+  <%= form_with url: settings_logo_path, method: :post, multipart: true, html: { autocomplete: 'off' } do %>
+    <file-dropzone data-submit-on-upload="true" class="w-full block">
+      <label for="logo_file" class="w-full block h-32 relative bg-base-100 hover:bg-base-100/70 rounded-md border border-base-content border-dashed">
+        <div class="absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center p-2">
+          <div class="flex flex-col items-center text-center">
+            <span data-target="file-dropzone.icon">
+              <%= svg_icon('cloud_upload', class: 'w-10 h-10') %>
+            </span>
+            <span data-target="file-dropzone.loading" class="hidden">
+              <%= svg_icon('loader', class: 'w-10 h-10 animate-spin') %>
+            </span>
+            <div class="font-medium mb-1">
+              <%= t('upload_logo') %>
+            </div>
+            <div class="text-xs">
+              <span class="md:hidden"><%= t('click_to_upload') %></span>
+              <span class="hidden md:inline"><%= t('click_to_upload_or_drag_and_drop_html') %></span>
+            </div>
+          </div>
+          <input id="logo_file" name="file" class="hidden" data-action="change:file-dropzone#onSelectFiles" data-target="file-dropzone.input" type="file" accept="image/png,image/jpeg,image/jpg">
+        </div>
+      </label>
+    </file-dropzone>
+    <button type="submit" class="hidden" tabindex="-1" aria-hidden="true"></button>
+  <% end %>
+</div>
