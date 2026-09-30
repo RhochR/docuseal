@@ -118,4 +118,21 @@ RSpec.describe EmailHtml do
 
     expect(document.at_css('html > body > p').text).to eq('Hi')
   end
+
+  describe '.default_template' do
+    it 'is an HTML document that links to the given variable' do
+      html = described_class.default_template(variables: %w[template.name submitter.link account.name])
+
+      expect(EmailMessages.html_body?(html)).to be(true)
+      expect(html).to include('href="{{submitter.link}}"')
+    end
+
+    it 'comes through the cleaning unchanged in structure' do
+      html = described_class.default_template(variables: %w[submission.link])
+      document = render(html)
+
+      expect(document.at_css("a[href*='/submissions/']")).to be_present
+      expect(document.css('table').size).to eq(2)
+    end
+  end
 end

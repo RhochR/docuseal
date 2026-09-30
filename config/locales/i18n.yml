@@ -894,6 +894,7 @@ en: &en
   advanced_settings: Advanced settings
   text: Text
   code: Code
+  html_email_variables_hint_html: "Available variables: %{variables}. A footer with a link to DocuSeal is added automatically."
   custom_html_emails: Custom HTML emails
   connect_your_email_to_send_html_emails: Connect your email to send HTML emails
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Connect your Gmail or Outlook account or add SMTP settings to send custom HTML emails.
@@ -2048,6 +2049,7 @@ es: &es
   advanced_settings: Configuración avanzada
   text: Texto
   code: Código
+  html_email_variables_hint_html: "Variables disponibles: %{variables}. Se añade automáticamente un pie con un enlace a DocuSeal."
   custom_html_emails: Correos electrónicos HTML personalizados
   connect_your_email_to_send_html_emails: Conecta tu correo electrónico para enviar correos HTML
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Conecta tu cuenta de Gmail u Outlook o añade ajustes SMTP para enviar correos HTML personalizados.
@@ -3208,6 +3210,7 @@ it: &it
   advanced_settings: Impostazioni avanzate
   text: Testo
   code: Codice
+  html_email_variables_hint_html: "Variabili disponibili: %{variables}. Un piè di pagina con un link a DocuSeal viene aggiunto automaticamente."
   custom_html_emails: Email HTML personalizzate
   connect_your_email_to_send_html_emails: Collega la tua email per inviare email HTML
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Collega il tuo account Gmail o Outlook oppure aggiungi impostazioni SMTP per inviare email HTML personalizzate.
@@ -4350,6 +4353,7 @@ fr: &fr
   advanced_settings: Paramètres avancés
   text: Texte
   code: Code
+  html_email_variables_hint_html: "Variables disponibles : %{variables}. Un pied de page avec un lien vers DocuSeal est ajouté automatiquement."
   custom_html_emails: E‑mails HTML personnalisés
   connect_your_email_to_send_html_emails: Connectez votre e‑mail pour envoyer des e‑mails HTML
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Connectez votre compte Gmail ou Outlook ou ajoutez des paramètres SMTP pour envoyer des e‑mails HTML personnalisés.
@@ -5510,6 +5514,7 @@ pt: &pt
   advanced_settings: Configurações avançadas
   text: Texto
   code: Código
+  html_email_variables_hint_html: "Variáveis disponíveis: %{variables}. Um rodapé com um link para o DocuSeal é adicionado automaticamente."
   custom_html_emails: E-mails HTML personalizados
   connect_your_email_to_send_html_emails: Conecte seu e-mail para enviar e-mails HTML
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Conecte sua conta Gmail ou Outlook ou adicione configurações SMTP para enviar e-mails HTML personalizados.
@@ -6669,6 +6674,7 @@ de: &de
   advanced_settings: Erweiterte Einstellungen
   text: Text
   code: Code
+  html_email_variables_hint_html: "Verfügbare Variablen: %{variables}. Eine Fußzeile mit einem Link zu DocuSeal wird automatisch angehängt."
   custom_html_emails: Benutzerdefinierte HTML-E-Mails
   connect_your_email_to_send_html_emails: Verbinden Sie Ihr E-Mail-Konto, um HTML-E-Mails zu senden
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Verbinden Sie Ihr Gmail- oder Outlook-Konto oder fügen Sie SMTP-Einstellungen hinzu, um benutzerdefinierte HTML-E-Mails zu senden.
@@ -8352,6 +8358,7 @@ nl: &nl
   advanced_settings: Geavanceerde instellingen
   text: Tekst
   code: Code
+  html_email_variables_hint_html: "Beschikbare variabelen: %{variables}. Er wordt automatisch een voettekst met een link naar DocuSeal toegevoegd."
   custom_html_emails: Aangepaste HTML-e-mails
   connect_your_email_to_send_html_emails: Koppel uw e-mail om HTML-e-mails te verzenden
   connect_your_email_or_outlook_account_or_add_smtp_settings_to_send_custom_html_emails: Koppel uw Gmail- of Outlook-account of voeg SMTP-instellingen toe om aangepaste HTML-e-mails te verzenden.

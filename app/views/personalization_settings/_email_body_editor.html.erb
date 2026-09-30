@@ -1,1 +1,25 @@
-<%= render 'personalization_settings/markdown_editor', name:, value:, variables: local_assigns[:variables] %>
+<% variables = local_assigns[:variables] %>
+<% is_html = EmailMessages.html_body?(value) %>
+<% editor_id = SecureRandom.hex(4) %>
+<% modes = %w[text html] %>
+<div class="space-y-2">
+  <toggle-visible data-element-ids="<%= modes.map { |mode| "email_body_#{mode}_#{editor_id}" }.to_json %>" class="flex justify-end">
+    <div class="join">
+      <% modes.each do |mode| %>
+        <span>
+          <%= radio_button_tag "email_body_mode_#{editor_id}", mode, (mode == 'html') == is_html, id: "email_body_mode_#{mode}_#{editor_id}", class: 'peer hidden', data: { toggle_id: "email_body_#{mode}_#{editor_id}", action: 'change:toggle-visible#trigger' } %>
+          <label for="email_body_mode_<%= mode %>_<%= editor_id %>" class="btn btn-xs join-item w-16 peer-checked:btn-active normal-case font-medium"><%= mode == 'html' ? 'HTML' : t('text') %></label>
+        </span>
+      <% end %>
+    </div>
+  </toggle-visible>
+  <disable-hidden id="email_body_text_<%= editor_id %>" class="block <%= 'hidden' if is_html %>">
+    <%= render 'personalization_settings/markdown_editor', name:, value: is_html ? '' : value, variables: %>
+  </disable-hidden>
+  <disable-hidden id="email_body_html_<%= editor_id %>" class="block <%= 'hidden' unless is_html %>">
+    <%= render 'personalization_settings/email_html_editor', name:, value: is_html ? value : EmailHtml.default_template(variables: variables.to_a) %>
+    <p class="text-xs text-gray-600 mt-1">
+      <%= t('html_email_variables_hint_html', variables: safe_join((variables.to_a + %w[submitter.name]).map { |v| tag.code("{{#{v}}}") }, ', ')) %>
+    </p>
+  </disable-hidden>
+</div>

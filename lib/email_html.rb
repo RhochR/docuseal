@@ -40,7 +40,51 @@ module EmailHtml
                       'font-size: 13px !important; line-height: 1.4 !important; margin: 24px 0 0 !important; ' \
                       'text-indent: 0 !important; color: #6b7280 !important;'
 
+  LINK_VARIABLES = %w[submitter.link submission.link documents.link].freeze
+
+  DEFAULT_BUTTON = '<p style="margin: 24px 0;"><a href="{{__LINK__}}" style="display: inline-block; ' \
+                   'padding: 12px 24px; border-radius: 6px; background-color: #1f2937; color: #ffffff; ' \
+                   'text-decoration: none;">{{template.name}}</a></p>'
+  DEFAULT_TEXT = '<p style="margin: 24px 0;"><strong>{{template.name}}</strong></p>'
+
+  DEFAULT_TEMPLATE = <<~HTML
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      </head>
+      <body style="margin: 0; padding: 24px; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; color: #1f2937;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 32px; font-size: 16px; line-height: 1.5;">
+                    <p style="margin: 0 0 16px;">__GREETING__,</p>
+                    __BUTTON__
+                    <p style="margin: 0;">__THANKS__,<br>{{account.name}}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  HTML
+
   module_function
+
+  # Starting point shown when someone switches an email template from text to HTML.
+  def default_template(variables: [])
+    link_variable = (LINK_VARIABLES & variables.to_a).first
+    button = link_variable ? DEFAULT_BUTTON.sub('__LINK__') { link_variable } : DEFAULT_TEXT
+
+    DEFAULT_TEMPLATE.sub('__GREETING__') { ERB::Util.html_escape(I18n.t(:hi_there)) }
+                    .sub('__BUTTON__') { button }
+                    .sub('__THANKS__') { ERB::Util.html_escape(I18n.t(:thanks)) }
+  end
 
   def call(html, submitter:, sig: nil, link_url: nil, attribution_html: nil)
     html = ReplaceEmailVariables.call(html, submitter:, sig:, html_escape: true)
