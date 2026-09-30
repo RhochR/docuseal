@@ -6,6 +6,12 @@
     <style></style>
   </head>
   <body dir="<%= TextUtils.rtl?(yield) ? 'rtl' : 'auto' %>">
+    <% logo = Accounts.load_logo(@current_account) %>
+    <% if logo %>
+      <p>
+        <img src="<%= ActiveStorage::Blob.proxy_url(logo.blob, host: ENV.fetch('EMAIL_HOST', nil)) %>" alt="<%= @current_account.name %>" style="max-height: 48px; max-width: 200px; height: auto; width: auto;">
+      </p>
+    <% end %>
     <%= yield %>
     <%= render partial: 'shared/mailer_attribution' %>
   </body>

@@ -65,6 +65,20 @@ describe 'Account logo' do
     end
   end
 
+  describe 'serving the logo' do
+    it 'is available without signing in, so it can be shown to signers and in emails' do
+      post settings_logo_path, params: { file: sample_logo }
+
+      path = ActiveStorage::Blob.proxy_path(account.reload.logo.blob)
+
+      sign_out(user)
+      get path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq('image/png')
+    end
+  end
+
   describe 'DELETE /settings/logo' do
     it 'removes the logo' do
       post settings_logo_path, params: { file: sample_logo }
