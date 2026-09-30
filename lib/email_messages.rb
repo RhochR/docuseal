@@ -13,7 +13,7 @@ module EmailMessages
   module_function
 
   def html_body?(content)
-    content.present? && HTML_MIME_TYPES.include?(Marcel::MimeType.for(content.dup))
+    content.present? && HTML_MIME_TYPES.include?(Marcel::MimeType.for(content.lstrip))
   end
 
   def find_or_create_for_account_user(account, user, subject, body)
