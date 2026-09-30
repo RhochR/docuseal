@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   resources :webhook_hmac, only: %i[show]
   resources :webhook_preferences, only: %i[update]
   resource :templates_upload, only: %i[create]
+  resource :upload_spreadsheet, only: %i[create], controller: 'upload_spreadsheet'
   authenticated do
     resource :templates_upload, only: %i[show], path: 'new'
   end
@@ -109,6 +110,7 @@ Rails.application.routes.draw do
     resources :restore, only: %i[create], controller: 'templates_restore'
     resources :archived, only: %i[index], controller: 'templates_archived_submissions'
     resources :submissions, only: %i[new create]
+    resource :submissions_import, only: %i[create], controller: 'submissions_import'
     resource :folder, only: %i[edit update], controller: 'templates_folders'
     resource :preview, only: %i[show], controller: 'templates_preview'
     resource :form, only: %i[show], controller: 'templates_form_preview'
