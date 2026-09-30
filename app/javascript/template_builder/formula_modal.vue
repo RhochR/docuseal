@@ -22,16 +22,6 @@
         >&times;</a>
       </div>
       <div>
-        <div
-          v-if="!withFormula"
-          class="bg-base-300 rounded-xl py-2 px-3 text-center"
-        >
-          <a
-            href="https://www.docuseal.com/pricing"
-            target="_blank"
-            class="link"
-          >{{ t('available_in_pro') }}</a>
-        </div>
         <div class="flex flex-wrap mb-2 gap-y-1 pt-1">
           <button
             v-for="f in fields"
@@ -152,7 +142,7 @@ export default {
     IconCodePlus,
     IconMathFunction
   },
-  inject: ['t', 'template', 'withFormula'],
+  inject: ['t', 'template'],
   props: {
     field: {
       type: Object,
@@ -240,10 +230,6 @@ export default {
       })
     },
     validateSaveAndClose () {
-      if (!this.withFormula) {
-        return alert(this.t('available_only_in_pro'))
-      }
-
       const normalizedFormula = this.normalizeFormula(this.formula)
 
       if (normalizedFormula.includes('FIELD NOT FOUND')) {
