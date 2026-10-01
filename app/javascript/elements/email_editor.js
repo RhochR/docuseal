@@ -30,6 +30,19 @@ function loadCodeMirror () {
   return loaderPromise
 }
 
+// The preview shows the template as it is written, without the cleaning that is done when the email is sent.
+// Nothing but inline styles and secure images is allowed to load in it.
+const PREVIEW_POLICY = '<meta data-preview-policy http-equiv="Content-Security-Policy" ' +
+  'content="default-src \'none\'; img-src https: data:; style-src \'unsafe-inline\'">'
+
+function buildPreviewDocument (html) {
+  if (/<head[^>]*>/i.test(html)) {
+    return html.replace(/<head[^>]*>/i, (match) => match + PREVIEW_POLICY)
+  }
+
+  return PREVIEW_POLICY + html
+}
+
 export default targetable(class extends HTMLElement {
   static [target.static] = [
     'codeViewTab',
@@ -131,7 +144,7 @@ export default targetable(class extends HTMLElement {
   }
 
   showPreviewView = () => {
-    this.previewIframe.srcdoc = this.input.value
+    this.previewIframe.srcdoc = buildPreviewDocument(this.input.value)
 
     this.codeViewTab.classList.remove('tab-active', 'tab-bordered')
     this.codeViewTab.classList.add('pb-[3px]')
@@ -183,7 +196,7 @@ export default targetable(class extends HTMLElement {
       ]
     })
 
-    this.previewIframe.srcdoc = this.editorView.state.doc.toString()
+    this.previewIframe.srcdoc = buildPreviewDocument(this.editorView.state.doc.toString())
 
     this.previewIframe.onload = () => {
       const previewIframeDoc = this.previewIframe.contentDocument
@@ -195,7 +208,11 @@ export default targetable(class extends HTMLElement {
       const contentDocument = this.previewIframe.contentDocument || this.previewIframe.contentWindow.document
 
       contentDocument.body.addEventListener('input', async () => {
-        const html = contentDocument.documentElement.outerHTML.replace(' contenteditable="true"', '')
+        const root = contentDocument.documentElement.cloneNode(true)
+
+        root.querySelectorAll('meta[data-preview-policy]').forEach((meta) => meta.remove())
+
+        const html = root.outerHTML.replace(' contenteditable="true"', '')
         const prettifiedHtml = await htmlflow(html)
 
         this.input.value = prettifiedHtml

@@ -62,5 +62,21 @@ RSpec.describe 'Email templates', :js do
         expect(page).to have_no_css('markdown-editor', visible: :visible)
       end
     end
+
+    it 'shows the preview with a policy that blocks everything but inline styles and secure images' do
+      form = open_signature_request_form
+
+      within(form) do
+        find('label', text: 'HTML').click
+        click_button 'Preview'
+
+        iframe = find('iframe', visible: :all, wait: 10)
+
+        expect(iframe[:srcdoc]).to include('Content-Security-Policy')
+        expect(iframe[:srcdoc]).to include("default-src 'none'")
+        expect(find('email-editor input[type="hidden"]', visible: :all,
+                                                         match: :first).value).not_to include('Content-Security-Policy')
+      end
+    end
   end
 end
