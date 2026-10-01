@@ -37,10 +37,14 @@ module Spreadsheets
 
   def parse_csv(data)
     text = decode(data)
-    separator = detect_separator(text)
+    rows = []
 
-    rows = CSV.parse(text, col_sep: separator, liberal_parsing: true).map do |row|
-      row.first(MAX_COLUMNS + 1).map { |value| normalize_value(value) }
+    CSV.new(text, col_sep: detect_separator(text), liberal_parsing: true).each do |row|
+      values = row.first(MAX_COLUMNS + 1).map { |value| normalize_value(value) }
+
+      rows << values unless values.all?(&:nil?)
+
+      break if rows.size > MAX_ROWS + 1
     end
 
     finalize_rows(rows)
@@ -53,17 +57,39 @@ module Spreadsheets
 
     workbook = Roo::Excelx.new(file.path, extension: :xlsx, only_visible_sheets: true)
 
-    workbook.sheets.map do |name|
-      rows = []
+    workbook.sheets.map { |name| [name, finalize_rows(read_sheet(workbook.sheet(name)))] }
+  rescue Error
+    raise
+  rescue StandardError
+    raise Error, I18n.t(:spreadsheet_could_not_be_read)
+  ensure
+    workbook&.close
+  end
 
-      workbook.sheet(name).each_row_streaming(pad_cells: true, max_rows: MAX_ROWS + 2) do |row|
-        rows << row.first(MAX_COLUMNS + 1).map { |cell| normalize_value(cell&.value) }
+  # Cells are placed by their coordinates and not padded by Roo, because the column of a cell is taken from the file
+  # and a tiny file can claim a column far beyond anything real.
+  def read_sheet(sheet)
+    rows = []
+
+    sheet.each_row_streaming(pad_cells: false, max_rows: MAX_ROWS + 2) do |row|
+      values = Array.new(MAX_COLUMNS + 1)
+
+      row.each do |cell|
+        column = cell.coordinate.column - 1
+
+        value = normalize_value(cell.value)
+
+        next if value.nil?
+
+        raise Error, I18n.t(:spreadsheet_too_many_columns, count: MAX_COLUMNS) if column >= MAX_COLUMNS
+
+        values[column] = value
       end
 
-      [name, finalize_rows(rows)]
+      rows << values
     end
-  rescue Zip::Error, Roo::HeaderRowNotFoundError, Nokogiri::XML::SyntaxError, ArgumentError, IOError, RangeError
-    raise Error, I18n.t(:spreadsheet_could_not_be_read)
+
+    rows
   end
 
   # An XLSX is a ZIP archive, refuse archives that would unpack into something huge.

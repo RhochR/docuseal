@@ -3,7 +3,7 @@
 class AccountLogosController < ApplicationController
   MAX_FILE_SIZE = 2.megabytes
   MAX_DIMENSION = 400
-  MAX_PIXELS = 40_000_000
+  MAX_PIXELS = 25_000_000
   CONTENT_TYPES = %w[image/png image/jpeg].freeze
 
   before_action do
@@ -13,7 +13,7 @@ class AccountLogosController < ApplicationController
   def create
     file = params[:file]
 
-    return redirect_with_error if file.blank? || file.size > MAX_FILE_SIZE
+    return redirect_with_error unless file.respond_to?(:read) && file.size <= MAX_FILE_SIZE
 
     current_account.logo.attach(build_blob(file.read))
 
@@ -39,11 +39,12 @@ class AccountLogosController < ApplicationController
 
     raise ImageUtils::UnsupportedFormat, content_type.to_s unless CONTENT_TYPES.include?(content_type)
 
-    image = ImageUtils.load_vips(data, content_type:, autorot: true)
+    header = Vips::Image.new_from_buffer(data, '')
 
-    raise ImageUtils::UnsupportedFormat, 'too large' if image.width * image.height > MAX_PIXELS
+    raise ImageUtils::UnsupportedFormat, 'too large' if header.width * header.height > MAX_PIXELS
 
-    image = image.thumbnail_image(MAX_DIMENSION, height: MAX_DIMENSION, size: :down)
+    # Decodes the image already reduced in size and applies the EXIF rotation.
+    image = Vips::Image.thumbnail_buffer(data, MAX_DIMENSION, height: MAX_DIMENSION, size: :down)
 
     ActiveStorage::Blob.create_and_upload!(
       io: StringIO.new(image.write_to_buffer('.png', strip: true)),

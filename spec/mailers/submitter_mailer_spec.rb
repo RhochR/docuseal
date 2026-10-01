@@ -21,7 +21,7 @@ RSpec.describe SubmitterMailer do
       end
 
       it 'shows the logo with an absolute URL and keeps the attribution' do
-        expect(html).to match(%r{<img src="https?://[^"]+/file/[^"]+/logo\.png" alt="#{Regexp.escape(account.name)}"})
+        expect(html).to match(%r{<img src="https?://[^"]+/file/[^"]+/logo\.png" alt="#{Regexp.escape(ERB::Util.html_escape(account.name))}"})
         expect(html).to include('open-source software')
         expect(html.scan('<img').size).to eq(1)
       end
