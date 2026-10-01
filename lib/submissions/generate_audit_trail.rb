@@ -23,6 +23,7 @@ module Submissions
 
     RTL_REGEXP = TextUtils::RTL_REGEXP
     MAX_IMAGE_HEIGHT = 100
+    ACCOUNT_LOGO_MAX_WIDTH = 120
 
     CHECKSUM_LIMIT = 30
 
@@ -558,7 +559,11 @@ module Submissions
       !submission.source.in?(%w[embed api])
     end
 
-    def add_logo(column, _submission = nil)
+    def add_logo(column, submission = nil)
+      account_logo = Accounts.load_logo(submission.account) if submission
+
+      add_account_logo(column, account_logo) if account_logo
+
       column.image(PdfIcons.logo_io, width: 40, height: 40, position: :float)
 
       column.formatted_text([{ text: 'DocuSeal',
@@ -568,6 +573,15 @@ module Submissions
                             width: 100,
                             padding: [5, 0, 0, 8],
                             position: :float, text_align: :left)
+    end
+
+    def add_account_logo(column, logo)
+      ratio = logo.blob.metadata['width'].to_f / logo.blob.metadata['height']
+      ratio = 1 unless ratio.positive?
+
+      width = [40 * ratio, ACCOUNT_LOGO_MAX_WIDTH].min
+
+      column.image(StringIO.new(logo.download), width:, height: width / ratio, margin: [0, 12, 0, 0], position: :float)
     end
 
     def r

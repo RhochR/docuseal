@@ -14,4 +14,17 @@ RSpec.describe 'Personalization Settings', :js do
     expect(page).to have_content('Company Logo')
     expect(page).to have_content('Submission Form')
   end
+
+  it 'uploads and removes the company logo' do
+    attach_file('logo_file', Rails.root.join('spec/fixtures/sample-image.png'), make_visible: true)
+
+    expect(page).to have_content('Logo has been uploaded.')
+    expect(page).to have_css("img[alt='#{account.name}']")
+    expect(account.reload.logo).to be_attached
+
+    accept_confirm { click_button 'Remove' }
+
+    expect(page).to have_content('Logo has been removed.')
+    expect(account.reload.logo).not_to be_attached
+  end
 end

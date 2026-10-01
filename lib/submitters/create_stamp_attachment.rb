@@ -103,8 +103,10 @@ module Submitters
       end
     end
 
-    def load_logo(_submitter)
-      PdfIcons.stamp_logo_io
+    def load_logo(submitter)
+      account_logo = Accounts.load_logo(submitter.account)
+
+      account_logo ? StringIO.new(account_logo.download) : PdfIcons.stamp_logo_io
     end
   end
 end
