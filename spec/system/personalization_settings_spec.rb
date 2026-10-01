@@ -16,6 +16,9 @@ RSpec.describe 'Personalization Settings', :js do
   end
 
   it 'uploads and removes the company logo' do
+    account.update_column(:name, 'Acme Corp')
+    visit settings_personalization_path
+
     attach_file('logo_file', Rails.root.join('spec/fixtures/sample-image.png'), make_visible: true)
 
     expect(page).to have_content('Logo has been uploaded.')

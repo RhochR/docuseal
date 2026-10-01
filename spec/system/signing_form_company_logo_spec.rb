@@ -10,6 +10,7 @@ RSpec.describe 'Signing Form with a company logo' do
     let(:submitter) { submission.submitters.first }
 
     before do
+      account.update_column(:name, 'Acme Corp')
       account.logo.attach(io: Rails.root.join('spec/fixtures/sample-image.png').open, filename: 'logo.png')
     end
 

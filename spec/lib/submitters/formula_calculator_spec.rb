@@ -177,7 +177,7 @@ RSpec.describe Submitters::FormulaCalculator do
       fields << { 'uuid' => 'a6', 'type' => 'text', 'preferences' => { 'formula' => 'x' } }
       submission.fields_uuid_index = fields.index_by { |f| f['uuid'] }
 
-      within_seconds(5) { described_class.eval_text('{{a1}}', {}, submission) }
+      expect { within_seconds(5) { described_class.eval_text('{{a1}}', {}, submission) } }.not_to raise_error
     end
   end
 end
