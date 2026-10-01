@@ -9,6 +9,7 @@ module Submitters
     PHONE_REGEXP = /[+\d()\s-]+/
     NONEDITABLE_FIELD_TYPES = %w[stamp heading strikethrough].freeze
     REQUIRED_FIELD_TYPES = %w[payment kba verification].freeze
+    POSITIVE_CONDITION_ACTIONS = %w[not_empty checked equal contains greater_than less_than].freeze
 
     STRFTIME_MAP = {
       'hour' => '%-k',
@@ -369,22 +370,28 @@ module Submitters
       end
     end
 
-    def check_field_conditions(submitter_values, field, fields_uuid_index)
+    def check_field_conditions(submitter_values, field, fields_uuid_index, visited = Set.new)
       return true if field['conditions'].blank?
 
       field['conditions'].each_with_object([]) do |c, acc|
         if c['operation'] == 'or'
-          acc.push(acc.pop || check_field_condition(c, submitter_values, fields_uuid_index))
+          acc.push(acc.pop || check_field_condition(c, submitter_values, fields_uuid_index, visited))
         else
-          acc.push(check_field_condition(c, submitter_values, fields_uuid_index))
+          acc.push(check_field_condition(c, submitter_values, fields_uuid_index, visited))
         end
       end.exclude?(false)
     end
 
     # rubocop:disable Metrics
-    def check_field_condition(condition, submitter_values, fields_uuid_index)
+    def check_field_condition(condition, submitter_values, fields_uuid_index, visited = Set.new)
       value = submitter_values[condition['field_uuid']]
       field = fields_uuid_index[condition['field_uuid']]
+
+      # A positive condition on a field that is itself hidden can never be met (same as the signing form).
+      if field && POSITIVE_CONDITION_ACTIONS.include?(condition['action']) && visited.exclude?(field['uuid']) &&
+         !check_field_conditions(submitter_values, field, fields_uuid_index, visited | [field['uuid']])
+        return false
+      end
 
       case condition['action']
       when 'empty', 'unchecked'

@@ -245,7 +245,7 @@ safeRegisterElement('template-builder', class extends HTMLElement {
       withFormula: this.dataset.withFormula === 'true',
       withSendButton: this.dataset.withSendButton !== 'false',
       withSignYourselfButton: this.dataset.withSignYourselfButton !== 'false',
-      withConditions: this.dataset.withConditions === 'true',
+      withConditions: this.dataset.withConditions !== 'false',
       withDynamicDocuments: this.dataset.withDynamicDocuments === 'true',
       withGoogleDrive: this.dataset.withGoogleDrive === 'true',
       pagePreviewFormat: this.dataset.pagePreviewFormat || '.jpg',
