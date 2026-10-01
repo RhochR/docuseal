@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - master
-      - ci/ghcr-image # temporary, to test the workflow before it is merged
     tags:
       - 'v*.*.*'
   workflow_dispatch:
