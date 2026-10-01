@@ -127,4 +127,57 @@ RSpec.describe Submitters::FormulaCalculator do
       expect(described_class.eval_text('Sum: {{sum}}', { 'a' => '1', 'b' => '2' }, submission)).to eq('Sum: 3')
     end
   end
+
+  describe 'protection against expensive input' do
+    def within_seconds(seconds, &)
+      Timeout.timeout(seconds, &)
+    end
+
+    it 'does not hang on huge exponents' do
+      within_seconds(5) do
+        expect(described_class.calculate('9 ^ 999999999', {}, submission)).to be_nil
+        expect(described_class.calculate('(1.0000001) ^ (99999999)', {}, submission)).to be_within(0.01).of(22_026.45)
+        expect(described_class.calculate('{{a}} ^ {{b}}', { 'a' => '9.0', 'b' => '999999999.0' }, submission)).to be_nil
+      end
+    end
+
+    it 'still calculates normal powers' do
+      expect(described_class.calculate('2 ^ 10', {}, submission)).to eq(1024)
+      expect(described_class.calculate('{{a}} ^ 2', { 'a' => '1.5' }, submission)).to eq(2.25)
+    end
+
+    it 'limits bit shifts' do
+      within_seconds(5) do
+        expect(described_class.calculate('1 << 999999999', {}, submission)).to be_nil
+      end
+
+      expect(described_class.calculate('1 << 3', {}, submission)).to eq(8)
+    end
+
+    it 'treats very long numbers as zero' do
+      expect(described_class.calculate('{{a}} + 1', { 'a' => "1#{'0' * 40}" }, submission)).to eq(1)
+    end
+
+    it 'does not blow up for text formulas that reference themselves' do
+      reference = '{{loop}}' * 10
+      fields << { 'uuid' => 'loop', 'type' => 'text', 'preferences' => { 'formula' => reference } }
+      submission.fields_uuid_index = fields.index_by { |f| f['uuid'] }
+
+      within_seconds(5) do
+        expect(described_class.eval_text("x#{reference}", {}, submission)).to eq('x')
+      end
+    end
+
+    it 'limits the work for text formulas that fan out' do
+      fields << { 'uuid' => 'a1', 'type' => 'text', 'preferences' => { 'formula' => '{{a2}}{{a2}}{{a2}}{{a2}}' } }
+      fields << { 'uuid' => 'a2', 'type' => 'text', 'preferences' => { 'formula' => '{{a3}}{{a3}}{{a3}}{{a3}}' } }
+      fields << { 'uuid' => 'a3', 'type' => 'text', 'preferences' => { 'formula' => '{{a4}}{{a4}}{{a4}}{{a4}}' } }
+      fields << { 'uuid' => 'a4', 'type' => 'text', 'preferences' => { 'formula' => '{{a5}}{{a5}}{{a5}}{{a5}}' } }
+      fields << { 'uuid' => 'a5', 'type' => 'text', 'preferences' => { 'formula' => '{{a6}}{{a6}}{{a6}}{{a6}}' } }
+      fields << { 'uuid' => 'a6', 'type' => 'text', 'preferences' => { 'formula' => 'x' } }
+      submission.fields_uuid_index = fields.index_by { |f| f['uuid'] }
+
+      within_seconds(5) { described_class.eval_text('{{a1}}', {}, submission) }
+    end
+  end
 end

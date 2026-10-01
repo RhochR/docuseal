@@ -6,6 +6,8 @@ module Submitters
   # (result PDF, API, webhooks) does not depend on the browser.
   module FormulaCalculator
     MAX_DEPTH = 10
+    MAX_EXPANSIONS = 500
+    MAX_NUMBER_LENGTH = 30
     EPOCH = Date.new(1970, 1, 1)
     NUMERIC_REGEXP = /\A\s*-?(?:\d+\.?\d*|\.\d+)\s*\z/
     TODAY_TOKEN = 'today()'
@@ -25,7 +27,7 @@ module Submitters
       (EPOCH + days.floor).iso8601
     end
 
-    def eval_text(formula, values, submission, depth = 0)
+    def eval_text(formula, values, submission, depth = 0, state = { expansions: 0, stack: [] })
       return '' if depth > MAX_DEPTH
 
       formula.gsub(/{{(.*?)}}/) do
@@ -33,14 +35,28 @@ module Submitters
         field = submission.fields_uuid_index[uuid]
         nested_formula = field&.dig('preferences', 'formula').presence
 
-        if nested_formula && field['type'] == 'text'
-          eval_text(nested_formula, values, submission, depth + 1)
-        elsif nested_formula
-          calculate_nested(nested_formula, field, values, submission).to_s
+        if nested_formula
+          state[:expansions] += 1
+
+          next '' if state[:expansions] > MAX_EXPANSIONS || state[:stack].include?(uuid)
+
+          expand_nested(uuid, nested_formula, field, values, submission, depth, state)
         else
           Array.wrap(values[uuid]).join(', ')
         end
       end
+    end
+
+    def expand_nested(uuid, nested_formula, field, values, submission, depth, state)
+      if field['type'] == 'text'
+        state[:stack].push(uuid)
+
+        eval_text(nested_formula, values, submission, depth + 1, state)
+      else
+        calculate_nested(nested_formula, field, values, submission).to_s
+      end
+    ensure
+      state[:stack].delete(uuid) if field['type'] == 'text'
     end
 
     def calculate_nested(formula, field, values, submission)
@@ -73,7 +89,7 @@ module Submitters
     def numeric_token(value)
       value = value.first if value.is_a?(Array)
 
-      return '0.0' unless value.to_s.match?(NUMERIC_REGEXP)
+      return '0.0' unless value.to_s.length <= MAX_NUMBER_LENGTH && value.to_s.match?(NUMERIC_REGEXP)
 
       "(#{BigDecimal(value.to_s.strip).to_s('F')})"
     end

@@ -48,5 +48,20 @@ RSpec.describe Submitters::SubmitValues do
 
       expect { described_class.check_field_conditions(values, first, circular_index) }.not_to raise_error
     end
+
+    it 'checks long chains of conditions in linear time' do
+      fields = Array.new(40) do |i|
+        { 'uuid' => "f#{i}", 'type' => 'text',
+          'conditions' => [{ 'field_uuid' => "f#{i + 1}", 'action' => 'not_empty' },
+                           { 'field_uuid' => "f#{i + 1}", 'action' => 'not_empty', 'operation' => 'or' }] }
+      end
+
+      chain_index = fields.index_by { |f| f['uuid'] }
+      values = { 'f40' => 'x' }
+
+      Timeout.timeout(5) do
+        expect(described_class.check_field_conditions(values, fields.first, chain_index)).to be(false)
+      end
+    end
   end
 end
