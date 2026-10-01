@@ -242,7 +242,7 @@ safeRegisterElement('template-builder', class extends HTMLElement {
       withStripe: this.dataset.withStripe !== 'false',
       withPaypal: this.dataset.withPaypal === 'true',
       isPaypalConnected: this.dataset.isPaypalConnected === 'true',
-      withFormula: this.dataset.withFormula === 'true',
+      withFormula: this.dataset.withFormula !== 'false',
       withSendButton: this.dataset.withSendButton !== 'false',
       withSignYourselfButton: this.dataset.withSignYourselfButton !== 'false',
       withConditions: this.dataset.withConditions !== 'false',

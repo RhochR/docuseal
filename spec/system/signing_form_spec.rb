@@ -1341,4 +1341,50 @@ RSpec.describe 'Signing Form' do
       expect(page).to have_no_css('#form_container')
     end
   end
+
+  context 'when the form has a formula field' do
+    let(:template) { create(:template, account:, author:, only_field_types: ['text']) }
+    let(:submission) { create(:submission, :with_submitters, template:) }
+    let(:template_attachment) { template.schema.first }
+    let(:submitter) { submission.submitters.first }
+    let(:price_uuid) { '4b1e4ff0-4d3a-4a55-8d4c-0c1f3f1a0001' }
+    let(:quantity_uuid) { '4b1e4ff0-4d3a-4a55-8d4c-0c1f3f1a0002' }
+    let(:total_uuid) { '4b1e4ff0-4d3a-4a55-8d4c-0c1f3f1a0003' }
+
+    def formula_area(index)
+      {
+        'x' => 0.1, 'y' => 0.1 + (index * 0.05), 'w' => 0.2, 'h' => 0.03,
+        'attachment_uuid' => template_attachment['attachment_uuid'], 'page' => 0
+      }
+    end
+
+    before do
+      submission.update!(
+        template_fields: [
+          { 'uuid' => price_uuid, 'submitter_uuid' => submitter.uuid, 'name' => 'Price',
+            'type' => 'number', 'required' => true, 'preferences' => {}, 'areas' => [formula_area(0)] },
+          { 'uuid' => quantity_uuid, 'submitter_uuid' => submitter.uuid, 'name' => 'Quantity',
+            'type' => 'number', 'required' => true, 'preferences' => {}, 'areas' => [formula_area(1)] },
+          { 'uuid' => total_uuid, 'submitter_uuid' => submitter.uuid, 'name' => 'Total',
+            'type' => 'number', 'required' => false, 'readonly' => true,
+            'preferences' => { 'formula' => "{{#{price_uuid}}} * {{#{quantity_uuid}}}" },
+            'areas' => [formula_area(2)] }
+        ]
+      )
+    end
+
+    it 'stores the calculated value when the form is completed' do
+      visit submit_form_path(slug: submitter.slug)
+
+      fill_in 'Price', with: '12.5'
+      click_button 'next'
+
+      fill_in 'Quantity', with: '4'
+      find('#submit_form_button').click
+
+      expect(page).to have_content('Form has been completed!')
+
+      expect(submitter.reload.values[total_uuid]).to eq(50)
+    end
+  end
 end
