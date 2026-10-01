@@ -1,0 +1,11 @@
+<email-editor class="block">
+  <div class="border border-base-content/20 rounded-2xl bg-white overflow-hidden">
+    <div class="flex border-b border-base-content/20 px-2 pt-1 gap-x-1">
+      <button type="button" class="tab tab-active tab-bordered" data-target="email-editor.codeViewTab"><%= t('code') %></button>
+      <button type="button" class="tab pb-[3px]" data-target="email-editor.previewViewTab"><%= t('preview') %></button>
+    </div>
+    <div data-target="email-editor.editorContainer" class="max-h-[360px] min-h-[220px] overflow-auto p-2"></div>
+    <iframe data-target="email-editor.previewIframe" class="hidden w-full h-[360px] bg-white" sandbox="allow-same-origin" title="<%= t('preview') %>"></iframe>
+  </div>
+  <%= hidden_field_tag name, value %>
+</email-editor>

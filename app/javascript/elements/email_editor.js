@@ -61,7 +61,7 @@ export default targetable(class extends HTMLElement {
   }
 
   validateOnSubmit = (e) => {
-    if (!this.htmlLanguage) return
+    if (!this.htmlLanguage || this.closest('.hidden')) return
 
     const bodyType = this.form.querySelector('input[name$="[body_type]"]:checked')?.value
 

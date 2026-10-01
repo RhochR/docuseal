@@ -10,7 +10,7 @@ module HtmlToPlainText
 
     doc = Nokogiri::HTML.fragment(cleaned)
 
-    doc.xpath('.//script').each(&:remove)
+    doc.xpath('.//script | .//style | .//head | .//title').each(&:remove)
 
     result = process_nodes(doc, line_length)
 
@@ -59,6 +59,10 @@ module HtmlToPlainText
     when 'li'
       inner = process_nodes(node, line_length)
       "* #{inner.strip}\n"
+    when 'tr'
+      "#{process_nodes(node, line_length).strip}\n"
+    when 'td', 'th'
+      "#{process_nodes(node, line_length).strip}  "
     else
       process_nodes(node, line_length)
     end
