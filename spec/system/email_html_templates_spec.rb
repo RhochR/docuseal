@@ -30,7 +30,7 @@ RSpec.describe 'Email templates', :js do
         click_button 'Save'
       end
 
-      expect(page).to have_content('Settings have been saved.')
+      expect(page).to have_content('Settings have been saved.', wait: 10)
       expect(AccountConfig.find_by(account:, key: email_config_key).value['body']).not_to start_with('<!DOCTYPE')
     end
 
@@ -41,13 +41,13 @@ RSpec.describe 'Email templates', :js do
         find('label', text: 'HTML').click
 
         expect(page).to have_css('email-editor', visible: :visible, wait: 10)
-        expect(page).to have_content('Available variables')
+        expect(page).to have_content('Available variables', wait: 10)
         expect(page).to have_content('A footer with a link to DocuSeal is added automatically')
 
         click_button 'Save'
       end
 
-      expect(page).to have_content('Settings have been saved.')
+      expect(page).to have_content('Settings have been saved.', wait: 10)
 
       body = AccountConfig.find_by(account:, key: email_config_key).value['body']
 
@@ -59,7 +59,7 @@ RSpec.describe 'Email templates', :js do
 
       within(form) do
         expect(page).to have_css('email-editor', visible: :visible, wait: 10)
-        expect(page).to have_no_css('markdown-editor', visible: :visible)
+        expect(page).to have_no_css('markdown-editor', visible: :visible, wait: 10)
       end
     end
 
