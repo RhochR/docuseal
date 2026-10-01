@@ -207,7 +207,7 @@
               ref="input"
               type="file"
               name="file"
-              accept=".xlsx, .xls, .csv"
+              accept=".xlsx, .csv"
               @change="onSelectFile"
             >
           </form>
@@ -346,7 +346,7 @@ export default {
       return this.$el.closest('form')
     },
     fieldTypes () {
-      return ['text', 'cells', 'date', 'number', 'radio', 'select', 'checkbox', 'image']
+      return ['text', 'cells', 'date', 'number', 'radio', 'select', 'checkbox']
     },
     defaultFields () {
       return [

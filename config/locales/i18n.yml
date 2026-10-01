@@ -731,6 +731,12 @@ en: &en
   via_phone: via Phone
   detailed: Detailed
   upload_list: Upload List
+  spreadsheet_unsupported_file: "Unsupported file. Upload a CSV or XLSX spreadsheet."
+  spreadsheet_too_large: "The file is too large. The limit is %{size} MB."
+  spreadsheet_too_many_rows: "The spreadsheet has too many rows. Up to %{count} rows are supported."
+  spreadsheet_too_many_columns: "The spreadsheet has too many columns. Up to %{count} columns are supported."
+  spreadsheet_is_empty: "The spreadsheet is empty."
+  spreadsheet_could_not_be_read: "The spreadsheet could not be read."
   creating: Creating
   open_source_documents_software: open source documents software
   copy_link: Copy Link
@@ -1892,6 +1898,12 @@ es: &es
   via_phone: por Teléfono
   detailed: Detallado
   upload_list: Subir lista
+  spreadsheet_unsupported_file: "Archivo no compatible. Suba una hoja de cálculo CSV o XLSX."
+  spreadsheet_too_large: "El archivo es demasiado grande. El límite es de %{size} MB."
+  spreadsheet_too_many_rows: "La hoja de cálculo tiene demasiadas filas. Se admiten hasta %{count} filas."
+  spreadsheet_too_many_columns: "La hoja de cálculo tiene demasiadas columnas. Se admiten hasta %{count} columnas."
+  spreadsheet_is_empty: "La hoja de cálculo está vacía."
+  spreadsheet_could_not_be_read: "No se pudo leer la hoja de cálculo."
   creating: Crear
   open_source_documents_software: software de documentos de código abierto
   copy_link: Copiar enlace
@@ -3056,6 +3068,12 @@ it: &it
   via_phone: via telefono
   detailed: Dettagliato
   upload_list: Carica elenco
+  spreadsheet_unsupported_file: "File non supportato. Carica un foglio di calcolo CSV o XLSX."
+  spreadsheet_too_large: "Il file è troppo grande. Il limite è di %{size} MB."
+  spreadsheet_too_many_rows: "Il foglio di calcolo ha troppe righe. Sono supportate fino a %{count} righe."
+  spreadsheet_too_many_columns: "Il foglio di calcolo ha troppe colonne. Sono supportate fino a %{count} colonne."
+  spreadsheet_is_empty: "Il foglio di calcolo è vuoto."
+  spreadsheet_could_not_be_read: "Impossibile leggere il foglio di calcolo."
   creating: Crea
   open_source_documents_software: software di documenti open source
   copy_link: Copia link
@@ -4206,6 +4224,12 @@ fr: &fr
   via_phone: Par téléphone
   detailed: Détaillé
   upload_list: Téléverser une liste
+  spreadsheet_unsupported_file: "Fichier non pris en charge. Téléversez un tableur CSV ou XLSX."
+  spreadsheet_too_large: "Le fichier est trop volumineux. La limite est de %{size} Mo."
+  spreadsheet_too_many_rows: "Le tableur contient trop de lignes. Jusqu'à %{count} lignes sont prises en charge."
+  spreadsheet_too_many_columns: "Le tableur contient trop de colonnes. Jusqu'à %{count} colonnes sont prises en charge."
+  spreadsheet_is_empty: "Le tableur est vide."
+  spreadsheet_could_not_be_read: "Impossible de lire le tableur."
   creating: Créer
   open_source_documents_software: logiciel de documents open source
   copy_link: Copier le lien
@@ -5366,6 +5390,12 @@ pt: &pt
   via_phone: via Telefone
   detailed: Detalhado
   upload_list: Carregar lista
+  spreadsheet_unsupported_file: "Arquivo não suportado. Envie uma planilha CSV ou XLSX."
+  spreadsheet_too_large: "O arquivo é muito grande. O limite é de %{size} MB."
+  spreadsheet_too_many_rows: "A planilha tem linhas demais. São suportadas até %{count} linhas."
+  spreadsheet_too_many_columns: "A planilha tem colunas demais. São suportadas até %{count} colunas."
+  spreadsheet_is_empty: "A planilha está vazia."
+  spreadsheet_could_not_be_read: "Não foi possível ler a planilha."
   creating: Criar
   open_source_documents_software: software de documentos de código aberto
   copy_link: Copiar link
@@ -6529,6 +6559,12 @@ de: &de
   via_phone: per Telefon
   detailed: Detailliert
   upload_list: Liste hochladen
+  spreadsheet_unsupported_file: "Nicht unterstützte Datei. Laden Sie eine CSV- oder XLSX-Tabelle hoch."
+  spreadsheet_too_large: "Die Datei ist zu groß. Das Limit beträgt %{size} MB."
+  spreadsheet_too_many_rows: "Die Tabelle hat zu viele Zeilen. Es werden bis zu %{count} Zeilen unterstützt."
+  spreadsheet_too_many_columns: "Die Tabelle hat zu viele Spalten. Es werden bis zu %{count} Spalten unterstützt."
+  spreadsheet_is_empty: "Die Tabelle ist leer."
+  spreadsheet_could_not_be_read: "Die Tabelle konnte nicht gelesen werden."
   creating: Erstellen
   open_source_documents_software: Open-Source-Dokumentensoftware
   copy_link: Link kopieren
@@ -8220,6 +8256,12 @@ nl: &nl
   via_phone: via telefoon
   detailed: Gedetailleerd
   upload_list: Lijst uploaden
+  spreadsheet_unsupported_file: "Niet-ondersteund bestand. Upload een CSV- of XLSX-spreadsheet."
+  spreadsheet_too_large: "Het bestand is te groot. De limiet is %{size} MB."
+  spreadsheet_too_many_rows: "De spreadsheet heeft te veel rijen. Er worden maximaal %{count} rijen ondersteund."
+  spreadsheet_too_many_columns: "De spreadsheet heeft te veel kolommen. Er worden maximaal %{count} kolommen ondersteund."
+  spreadsheet_is_empty: "De spreadsheet is leeg."
+  spreadsheet_could_not_be_read: "De spreadsheet kon niet worden gelezen."
   creating: Aanmaken
   open_source_documents_software: open-sourcesoftware voor documenten
   copy_link: Link kopiëren
