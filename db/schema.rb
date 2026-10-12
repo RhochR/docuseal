@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_091500) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_061927) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_catalog.plpgsql"
@@ -320,6 +320,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_091500) do
     t.string "uid", null: false
     t.datetime "updated_at", null: false
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
+  end
+
+  create_table "otp_challenges", force: :cascade do |t|
+    t.integer "attempts", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "expire_at", null: false
+    t.string "key", null: false
+    t.string "nonce", null: false
+    t.datetime "verified_at"
+    t.integer "version", null: false
+    t.index ["key", "version"], name: "index_otp_challenges_on_key_and_version", unique: true
   end
 
   create_table "search_entries", force: :cascade do |t|

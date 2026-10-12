@@ -280,12 +280,12 @@ module Submitters
     email_digest = Digest::MD5.base64digest(submitter.email.downcase.squish)
 
     RateLimit.call("verify-2fa-code-#{email_digest}", limit: 2, ttl: 45.seconds, enabled: true)
-    RateLimit.call("verify-2fa-code-1h-#{email_digest}", limit: 10, ttl: 1.hour, enabled: true)
-    RateLimit.call("verify-2fa-code-1d-#{email_digest}", limit: 20, ttl: 1.day, enabled: true)
 
     link_2fa_key = [submitter.email.downcase.squish, submitter.submission.template.slug].join(':')
 
-    raise InvalidOtp, I18n.t(:invalid_code) unless EmailVerificationCodes.verify(otp, link_2fa_key)
+    unless OtpChallenges.verify(otp.to_s.gsub(/\D/, ''), link_2fa_key, purpose: 'form_email_2fa')
+      raise InvalidOtp, I18n.t(:invalid_code)
+    end
 
     true
   end

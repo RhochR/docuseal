@@ -266,7 +266,7 @@ module Templates
           ['.png', 'image/png', {}]
         end
 
-      data = image.write_to_buffer(extension, **format_args)
+      data = image.write_to_buffer(extension, strip: true, **format_args)
 
       blob = ActiveStorage::Blob.create_and_upload!(
         io: StringIO.new(data),

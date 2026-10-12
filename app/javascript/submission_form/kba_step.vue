@@ -483,7 +483,7 @@ export default {
       this.clearCountdown()
 
       try {
-        const payload = { ...this.form, submitter_slug: this.submitterSlug }
+        const payload = { ...this.form }
 
         if (payload.dob) {
           payload.dob = payload.dob.replace(/-/g, '')
@@ -497,7 +497,7 @@ export default {
           payload.phone = payload.phone.replace(/^\+1/, '')
         }
 
-        const resp = await fetch(this.baseUrl + '/api/kba', {
+        const resp = await fetch(this.baseUrl + `/s/${this.submitterSlug}/kba`, {
           method: 'POST',
           body: JSON.stringify(payload),
           ...this.fetchOptions,
@@ -548,13 +548,12 @@ export default {
       }, {})
 
       try {
-        const resp = await fetch(this.baseUrl + `/api/kba/${this.field.uuid}`, {
+        const resp = await fetch(this.baseUrl + `/s/${this.submitterSlug}/kba/${this.field.uuid}`, {
           method: 'PUT',
           body: JSON.stringify({
             token: this.token,
             answers: formattedAnswers,
-            reference: this.reference,
-            submitter_slug: this.submitterSlug
+            reference: this.reference
           }),
           ...this.fetchOptions,
           headers: { 'Content-Type': 'application/json', ...this.fetchOptions.headers }

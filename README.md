@@ -43,7 +43,7 @@ Emails are sent from the address configured in the SMTP settings.
 - Files storage on disk or AWS S3, Google Storage, Azure Cloud
 - Automatic PDF eSignature
 - PDF signature verification
-- Users management
+- User management
 - Mobile-optimized
 - 7 UI languages with signing available in 14 languages
 - API and Webhooks for integrations

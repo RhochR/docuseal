@@ -906,7 +906,7 @@
             <button
               type="button"
               class="join-item bg-base-content text-white h-9 pl-2 pr-3 inline-flex items-center justify-center cursor-pointer hover:opacity-90 border-l border-white/20"
-              @click="zoomLevel = 1"
+              @click="resetZoomLevel"
             >
               <IconX class="w-4 h-4 stroke-2" />
             </button>
@@ -1007,6 +1007,9 @@ export default {
     return {
       template: this.template,
       save: this.save,
+      pushUndo: this.pushUndo,
+      undo: this.undo,
+      redo: this.redo,
       t: this.t,
       assignDropAreaSize: this.assignDropAreaSize,
       currencies: this.currencies,
@@ -1640,18 +1643,20 @@ export default {
     this.selectedSubmitter = this.template.submitters[0]
   },
   mounted () {
-    this.undoStack = [JSON.stringify(this.template)]
+    this.undoStack = []
     this.redoStack = []
 
+    this.undoStack.push(this.buildUndoData())
+
     this.$nextTick(() => {
-      this.onWindowResize()
+      this.resizeObserver = new ResizeObserver(this.onResize)
+      this.resizeObserver.observe(this.$el.getRootNode().querySelector('div[data-v-app]'))
     })
 
     document.addEventListener('keyup', this.onKeyUp)
     document.addEventListener('template-builder:apply-revision', this.onApplyRevisionEvent)
     window.addEventListener('keydown', this.onKeyDown)
 
-    window.addEventListener('resize', this.onWindowResize)
     window.addEventListener('dragleave', this.onWindowDragLeave)
 
     this.$nextTick(() => {
@@ -1675,7 +1680,7 @@ export default {
     document.removeEventListener('template-builder:apply-revision', this.onApplyRevisionEvent)
     window.removeEventListener('keydown', this.onKeyDown)
 
-    window.removeEventListener('resize', this.onWindowResize)
+    this.resizeObserver.disconnect()
     window.removeEventListener('dragleave', this.onWindowDragLeave)
   },
   beforeUpdate () {
@@ -2287,6 +2292,8 @@ export default {
 
       const dynamicDocumentRefs = this.documentRefs.filter((ref) => ref.isDynamic)
 
+      this.pushUndo()
+
       dynamicDocumentRefs.forEach((ref) => ref.update())
 
       this.rebuildVariablesSchema({ disable: false })
@@ -2414,42 +2421,85 @@ export default {
       this.drawOption = null
     },
     undo () {
+      this.selectedAreasRef.value = []
+
       if (this.undoStack.length > 1) {
         this.undoStack.pop()
-        const stringData = this.undoStack[this.undoStack.length - 1]
-        const currentStringData = JSON.stringify(this.template)
+        const undoData = this.undoStack[this.undoStack.length - 1]
+        const currentUndoData = this.buildUndoData()
 
-        if (stringData && stringData !== currentStringData) {
-          this.redoStack.push(currentStringData)
+        if (!this.isSameUndoData(undoData, currentUndoData)) {
+          this.redoStack.push(currentUndoData)
 
-          Object.assign(this.template, JSON.parse(stringData))
-
-          this.save()
+          this.applyUndoData(undoData, currentUndoData)
         }
       }
     },
     redo () {
-      const stringData = this.redoStack.pop()
-      this.lastRedoData = stringData
-      const currentStringData = JSON.stringify(this.template)
+      this.selectedAreasRef.value = []
 
-      if (stringData && stringData !== currentStringData) {
-        if (this.undoStack[this.undoStack.length - 1] !== currentStringData) {
-          this.undoStack.push(currentStringData)
+      const undoData = this.redoStack.pop()
+      const currentUndoData = this.buildUndoData()
+
+      if (undoData && !this.isSameUndoData(undoData, currentUndoData)) {
+        if (!this.isSameUndoData(this.undoStack[this.undoStack.length - 1], currentUndoData)) {
+          this.undoStack.push(currentUndoData)
         }
 
-        Object.assign(this.template, JSON.parse(stringData))
+        this.undoStack.push(undoData)
 
-        this.save()
+        this.applyUndoData(undoData, currentUndoData)
       }
     },
-    onWindowResize (e) {
+    buildUndoData () {
+      const template = JSON.stringify(toRaw(this.template))
+      const lastUndoData = this.undoStack[this.undoStack.length - 1]
+
+      return { template: template === lastUndoData?.template ? lastUndoData.template : template, sectionDocs: this.buildSectionDocs() }
+    },
+    buildSectionDocs () {
+      return new Map(this.documentRefs.flatMap((ref) => ref.isDynamic ? ref.getSectionDocs() : []))
+    },
+    isSameUndoData (undoData, currentUndoData) {
+      return undoData.template === currentUndoData.template && this.isSameSectionDocs(undoData, currentUndoData)
+    },
+    isSameSectionDocs (undoData, currentUndoData) {
+      return [...currentUndoData.sectionDocs].every(([sectionKey, doc]) => undoData.sectionDocs.get(sectionKey)?.eq(doc))
+    },
+    applyUndoData (undoData, currentUndoData) {
+      const isTemplateChanged = undoData.template !== currentUndoData.template
+
+      if (isTemplateChanged) {
+        Object.assign(this.template, JSON.parse(undoData.template))
+      }
+
+      this.documentRefs.forEach((ref) => {
+        if (ref.isDynamic) ref.restoreSectionDocs(undoData.sectionDocs)
+      })
+
+      this.buildSectionDocs().forEach((doc, sectionKey) => undoData.sectionDocs.set(sectionKey, doc))
+
+      if (isTemplateChanged) {
+        this.save()
+
+        this.$nextTick(this.syncUndoTemplate)
+      }
+    },
+    syncUndoTemplate () {
+      const lastUndoData = this.undoStack[this.undoStack.length - 1]
+      const template = JSON.stringify(toRaw(this.template))
+
+      if (template !== lastUndoData.template) lastUndoData.template = template
+    },
+    onResize () {
       const breakpointLg = 1024
       const breakpointMd = 768
       const width = this.$el.getRootNode().querySelector('div[data-v-app]').offsetWidth
 
-      this.isBreakpointLg = width < breakpointLg
-      this.isBreakpointMd = width < breakpointMd
+      if (width) {
+        this.isBreakpointLg = width < breakpointLg
+        this.isBreakpointMd = width < breakpointMd
+      }
     },
     onPagesWheel (event) {
       const isFastScroll = Math.abs(event.deltaY) > 1
@@ -2462,23 +2512,33 @@ export default {
 
       event.preventDefault()
 
-      const oldZoom = this.zoomLevel
-      const nextZoom = Math.max(1, Math.min(3, oldZoom - event.deltaY * 0.006))
-
-      if (nextZoom === oldZoom) return
-
+      this.setZoomLevel(this.zoomLevel - event.deltaY * 0.006, event.clientX, event.clientY)
+    },
+    resetZoomLevel () {
       const rect = this.$refs.pagesContainer.getBoundingClientRect()
-      const cursorX = event.clientX - rect.left
-      const cursorY = event.clientY - rect.top
-      const ratio = nextZoom / oldZoom
-      const nextScrollLeft = (this.$refs.pagesContainer.scrollLeft + cursorX) * ratio - cursorX
-      const nextScrollTop = (this.$refs.pagesContainer.scrollTop + cursorY) * ratio - cursorY
+
+      this.setZoomLevel(1, rect.left + rect.width / 2, (Math.max(rect.top, 0) + Math.min(rect.bottom, window.innerHeight)) / 2)
+    },
+    setZoomLevel (zoomLevel, clientX, clientY) {
+      const nextZoom = Math.max(1, Math.min(3, zoomLevel))
+
+      if (nextZoom === this.zoomLevel) return
+
+      const container = this.$refs.pagesContainer
+      const rect = this.$refs.documents.getBoundingClientRect()
 
       this.zoomLevel = nextZoom
 
       this.$nextTick(() => {
-        this.$refs.pagesContainer.scrollLeft = nextScrollLeft
-        this.$refs.pagesContainer.scrollTop = nextScrollTop
+        this.documentRefs.filter((ref) => ref.isDynamic).forEach((ref) => ref.updateContainerWidth())
+
+        this.$nextTick(() => {
+          const nextRect = this.$refs.documents.getBoundingClientRect()
+          const scrollContainer = container.scrollHeight > container.clientHeight ? container : document.scrollingElement
+
+          container.scrollLeft += nextRect.left - clientX + (clientX - rect.left) * nextRect.width / rect.width
+          scrollContainer.scrollTop += nextRect.top - clientY + (clientY - rect.top) * nextRect.height / rect.height
+        })
       })
     },
     setDocumentRefs (el) {
@@ -2597,14 +2657,10 @@ export default {
         event.stopImmediatePropagation()
         event.preventDefault()
 
-        this.selectedAreasRef.value = []
-
         this.redo()
       } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
         event.stopImmediatePropagation()
         event.preventDefault()
-
-        this.selectedAreasRef.value = []
 
         this.undo()
       } else if ((event.ctrlKey || event.metaKey) && event.key === 'c' && document.activeElement === document.body) {
@@ -2980,16 +3036,29 @@ export default {
         return false
       }
     },
-    pushUndo () {
-      const stringData = JSON.stringify(this.template)
+    pushUndo ({ amend = false } = {}) {
+      const undoData = this.buildUndoData()
+      const lastUndoData = this.undoStack[this.undoStack.length - 1]
+      const isTemplateChanged = undoData.template !== lastUndoData.template
+      const isSectionDocsChanged = !this.isSameSectionDocs(lastUndoData, undoData)
 
-      if (this.undoStack[this.undoStack.length - 1] !== stringData) {
-        this.undoStack.push(stringData)
+      if (this.isUndoBatch || (amend && (!isSectionDocsChanged || (!this.redoStack.length && !isTemplateChanged)))) {
+        this.undoStack[this.undoStack.length - 1] = undoData
+      } else if (isTemplateChanged || isSectionDocsChanged) {
+        this.undoStack.push(undoData)
 
-        if (this.lastRedoData !== stringData) {
-          this.redoStack = []
-        }
+        this.redoStack = []
+      } else {
+        return
       }
+
+      this.isUndoBatch = true
+
+      this.$nextTick(() => {
+        this.isUndoBatch = false
+
+        this.syncUndoTemplate()
+      })
     },
     setDefaultAreaSize (area, type) {
       const documentRef = this.documentRefs.find((e) => e.document.uuid === area.attachment_uuid)
@@ -3959,7 +4028,7 @@ export default {
 
       this.$nextTick(() => {
         if (this.$el.closest('template-builder')) {
-          this.$el.closest('template-builder').dataset.template = JSON.stringify(this.template)
+          this.$el.closest('template-builder').dataset.template = JSON.stringify(toRaw(this.template))
         }
       })
 
@@ -3992,9 +4061,11 @@ export default {
 
       this.$nextTick(() => {
         if (this.$el.closest('template-builder')) {
-          this.$el.closest('template-builder').dataset.dynamicDocuments = JSON.stringify(this.dynamicDocuments)
+          this.$el.closest('template-builder').dataset.dynamicDocuments = JSON.stringify(toRaw(this.dynamicDocuments))
         }
       })
+
+      this.pushUndo({ amend: true })
 
       this.save()
     },

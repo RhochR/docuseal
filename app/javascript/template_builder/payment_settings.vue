@@ -414,7 +414,7 @@ export default {
     checkStripeStatus () {
       this.isLoading = true
 
-      fetch('/api/stripe_connect').then(async (resp) => {
+      fetch('/stripe_connect').then(async (resp) => {
         const { status } = await resp.json()
 
         if (status === 'connected') {
@@ -427,7 +427,7 @@ export default {
       })
     },
     checkPaypalStatus () {
-      fetch('/api/paypal_connect').then(async (resp) => {
+      fetch('/paypal_connect').then(async (resp) => {
         const { status } = await resp.json()
 
         if (status === 'connected') {
