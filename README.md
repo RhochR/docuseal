@@ -54,12 +54,25 @@ Not part of this fork (offered by the original project in its commercial version
 
 By default the app uses an SQLite database. Set the `DATABASE_URL` environment variable to use PostgreSQL or MySQL instead.
 
-The `docker-compose.yml`, the Docker Hub image and the deploy buttons of the original project start the original DocuSeal, not this fork. To run the fork, build the image from the `Dockerfile` in this repository (the `Dockerfile` copies a `.version` file, so create one first) and use it instead of `docuseal/docuseal`:
+A Docker image of this fork is built automatically from the `master` branch by GitHub Actions and published to the GitHub Container Registry as `ghcr.io/rhochr/docuseal` (tags: `latest`, `sha-<commit>` and the version for tags like `v1.2.3`). The images for `amd64` and `arm64` are one multi-platform image, so nothing has to be built locally:
+
+```sh
+docker run --name docuseal -p 3000:3000 -v "$PWD":/data ghcr.io/rhochr/docuseal:latest
+```
+
+The app is then available at http://localhost:3000. To use PostgreSQL with automatic HTTPS (Caddy), use the `docker-compose.yml` of this repository, which already points to this image:
+
+```sh
+sudo HOST=your-domain.example docker compose up
+```
+
+The Docker Hub image and the deploy buttons of the original project start the original DocuSeal, not this fork. The image runs the application as `root` inside the container, like the original image. Do not expose it directly to the internet without HTTPS, and keep the mounted data directory and the SMTP password private.
+
+To build the image yourself, create a `.version` file (the `Dockerfile` copies it) and run `docker build`:
 
 ```sh
 echo "fork" > .version
 docker build -t docuseal-fork .
-docker run --name docuseal -p 3000:3000 -v "$PWD":/data docuseal-fork
 ```
 
 For development you need Ruby (see the `Gemfile` for the version), Node.js with Yarn and PostgreSQL. Run `bundle install`, `yarn install` and `bin/rails db:create db:migrate`, then `bundle exec foreman start -f Procfile.dev`. The tests run with `bundle exec rspec`.
