@@ -97,6 +97,33 @@ RSpec.describe Spreadsheets do
       expect(parse(xlsx, 'a.xlsx').map(&:first)).to eq(['Data'])
     end
 
+    it 'does not get stuck on a cell that claims a huge column' do
+      xlsx = build_xlsx('S' => [%w[a b], %w[c d]])
+      patched = StringIO.new
+
+      Zip::OutputStream.write_buffer(patched) do |output|
+        Zip::File.open_buffer(xlsx) do |zip|
+          zip.each do |entry|
+            data = entry.get_input_stream.read
+            data = data.gsub('r="B1"', 'r="ZZZZZZZZ1"') if entry.name.include?('sheet1')
+
+            output.put_next_entry(entry.name)
+            output.write(data)
+          end
+        end
+      end
+
+      Timeout.timeout(5) do
+        expect { parse(patched.string, 'a.xlsx') }.to raise_error(described_class::Error, /too many columns/)
+      end
+    end
+
+    it 'rejects worksheets with more columns than supported' do
+      xlsx = build_xlsx('Wide' => [Array.new(described_class::MAX_COLUMNS + 1) { |i| "c#{i}" }, ['x']])
+
+      expect { parse(xlsx, 'a.xlsx') }.to raise_error(described_class::Error, /too many columns/)
+    end
+
     it 'rejects a file that is not a spreadsheet' do
       expect { parse('not a zip file', 'a.xlsx') }.to raise_error(described_class::Error, /could not be read/)
     end

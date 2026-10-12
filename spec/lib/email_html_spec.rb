@@ -23,7 +23,7 @@ RSpec.describe EmailHtml do
 
     expect(document.at_css('style').text).to include('.box { padding: 12px; color: #333 }')
     expect(document.at_css('td')['style']).to eq('padding: 8px; color: red')
-    expect(document.at_css('body')['style']).to eq('margin:0')
+    expect(document.at_css('body')['style']).to start_with('margin:0;')
   end
 
   it 'replaces variables and escapes the values' do
@@ -117,6 +117,67 @@ RSpec.describe EmailHtml do
     document = render('<p>Hi</p>')
 
     expect(document.at_css('html > body > p').text).to eq('Hi')
+  end
+
+  describe 'tags that are not allowed' do
+    it 'cleans the content of an unknown wrapper element' do
+      html = '<html><body><article><script>alert(1)</script><a href="javascript:alert(1)" onclick="x()">x</a>' \
+             '<img src="x" onerror="alert(1)"><form action="https://evil.example"><input name="p"></form></article>' \
+             '<foo><svg><script>alert(1)</script></svg><base href="https://evil.example/"></foo></body></html>'
+
+      document = render(html)
+
+      expect(document.css('script, form, input, svg, base')).to be_empty
+      expect(document.at_css('a')['href']).to be_nil
+      expect(document.at_css('a')['onclick']).to be_nil
+      expect(document.at_css('img')['onerror']).to be_nil
+      expect(document.at_css('a').text).to eq('x')
+    end
+
+    it 'cleans deeply nested wrappers' do
+      html = "<html><body>#{'<section>' * 20}<a href=\"javascript:alert(1)\">x</a>#{'</section>' * 20}</body></html>"
+
+      expect(render(html).at_css('a')['href']).to be_nil
+    end
+  end
+
+  describe 'comments' do
+    it 'removes comments, including conditional comments for Outlook' do
+      html = '<html><body><!--[if mso]><div style="display:none"><a href="javascript:alert(1)">x</a><![endif]-->' \
+             '<p>Hi</p><!-- note --></body></html>'
+
+      result = described_class.call(html, submitter:, attribution_html: attribution)
+
+      expect(result).not_to include('<!--')
+      expect(result).not_to include('javascript:')
+      expect(result).to include('Hi')
+    end
+  end
+
+  describe 'attribution' do
+    it 'can not be hidden with a style block, on the body or on its container' do
+      html = '<html><head><style>[data-attribution], [data-attribution] * { position: absolute !important; ' \
+             'left: -9999px !important; visibility: hidden !important; font-size: 1px !important } ' \
+             'body { max-height: 0 !important; overflow: hidden !important; display: none !important }</style></head>' \
+             '<body style="height: 0; overflow: hidden"><p>Hi</p></body></html>'
+
+      document = render(html)
+      attribution_node = document.at_css('[data-attribution]')
+
+      expect(attribution_node['style']).to include('position: static !important')
+      expect(attribution_node['style']).to include('visibility: visible !important')
+      expect(attribution_node.css('*').pluck('style')).to all(include('visibility: visible !important'))
+      expect(document.at_css('body')['style']).to include('overflow: visible !important')
+      expect(document.at_css('body')['style']).to include('display: block !important')
+      expect(document.at_css('html')['style']).to include('max-height: none !important')
+    end
+
+    it 'is added even when the template has no body' do
+      document = render('<html><frameset><frame src="https://example.com"></frameset></html>')
+
+      expect(document.css('frameset, frame')).to be_empty
+      expect(document.at_css('body [data-attribution]')).to be_present
+    end
   end
 
   describe '.default_template' do

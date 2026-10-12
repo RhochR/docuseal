@@ -58,6 +58,23 @@ describe 'Account logo' do
       expect(account.reload.logo).not_to be_attached
     end
 
+    it 'rejects images with too many pixels' do
+      stub_const('AccountLogosController::MAX_PIXELS', 100)
+      png = Vips::Image.black(20, 20, bands: 3).write_to_buffer('.png')
+
+      post settings_logo_path, params: { file: upload(StringIO.new(png), 'image/png') }
+
+      expect(flash[:alert]).to eq(I18n.t('unable_to_upload_logo'))
+      expect(account.reload.logo).not_to be_attached
+    end
+
+    it 'does not fail when the file parameter is only a string' do
+      post settings_logo_path, params: { file: 'logo.png' }
+
+      expect(response).to redirect_to(settings_personalization_path)
+      expect(flash[:alert]).to eq(I18n.t('unable_to_upload_logo'))
+    end
+
     it 'requires a file' do
       post settings_logo_path
 

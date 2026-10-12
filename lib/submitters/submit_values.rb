@@ -370,26 +370,29 @@ module Submitters
       end
     end
 
-    def check_field_conditions(submitter_values, field, fields_uuid_index, visited = Set.new)
+    def check_field_conditions(submitter_values, field, fields_uuid_index, visited = Set.new, cache = {})
       return true if field['conditions'].blank?
 
       field['conditions'].each_with_object([]) do |c, acc|
         if c['operation'] == 'or'
-          acc.push(acc.pop || check_field_condition(c, submitter_values, fields_uuid_index, visited))
+          acc.push(acc.pop || check_field_condition(c, submitter_values, fields_uuid_index, visited, cache))
         else
-          acc.push(check_field_condition(c, submitter_values, fields_uuid_index, visited))
+          acc.push(check_field_condition(c, submitter_values, fields_uuid_index, visited, cache))
         end
       end.exclude?(false)
     end
 
     # rubocop:disable Metrics
-    def check_field_condition(condition, submitter_values, fields_uuid_index, visited = Set.new)
+    def check_field_condition(condition, submitter_values, fields_uuid_index, visited = Set.new, cache = {})
       value = submitter_values[condition['field_uuid']]
       field = fields_uuid_index[condition['field_uuid']]
 
       # A positive condition on a field that is itself hidden can never be met (same as the signing form).
       if field && POSITIVE_CONDITION_ACTIONS.include?(condition['action']) && visited.exclude?(field['uuid']) &&
-         !check_field_conditions(submitter_values, field, fields_uuid_index, visited | [field['uuid']])
+         !cache.fetch(field['uuid']) do
+           cache[field['uuid']] =
+             check_field_conditions(submitter_values, field, fields_uuid_index, visited | [field['uuid']], cache)
+         end
         return false
       end
 

@@ -35,10 +35,18 @@ module EmailHtml
   DANGEROUS_CSS_REGEXP = %r{expression\s*\(|javascript:|vbscript:|behavior\s*:|binding\s*:|@import|\\|/\*|<|>}i
   CSS_URL_REGEXP = /url\s*\([^)]*\)/i
 
-  ATTRIBUTION_STYLE = 'display: block !important; visibility: visible !important; opacity: 1 !important; ' \
-                      'height: auto !important; max-height: none !important; overflow: visible !important; ' \
+  # Inline !important wins over every rule of a <style> block, so a template can not hide the attribution, its
+  # container (the body and html elements) or anything inside it.
+  VISIBLE_STYLE = 'visibility: visible !important; opacity: 1 !important; position: static !important; ' \
+                  'float: none !important; transform: none !important; clip: auto !important; ' \
+                  'clip-path: none !important; height: auto !important; max-height: none !important; ' \
+                  'overflow: visible !important; text-indent: 0 !important;'
+  ATTRIBUTION_STYLE = "#{VISIBLE_STYLE} display: block !important; width: auto !important; " \
                       'font-size: 13px !important; line-height: 1.4 !important; margin: 24px 0 0 !important; ' \
-                      'text-indent: 0 !important; color: #6b7280 !important;'
+                      'color: #6b7280 !important;'.freeze
+  ATTRIBUTION_INNER_STYLE = "#{VISIBLE_STYLE} font-size: 13px !important; line-height: 1.4 !important; " \
+                            'color: #6b7280 !important;'.freeze
+  ROOT_STYLE = "#{VISIBLE_STYLE} display: block !important;".freeze
 
   LINK_VARIABLES = %w[submitter.link submission.link documents.link].freeze
 
@@ -90,7 +98,9 @@ module EmailHtml
     html = ReplaceEmailVariables.call(html, submitter:, sig:, html_escape: true)
 
     document = sanitize(html)
-    body = document.at_css('body')
+    body = document.at_css('body') || document.root.add_child(Nokogiri::XML::Node.new('body', document))
+
+    harden_root_elements(document, body)
 
     body.add_child(build_link_paragraph(document, link_url)) if link_url.present?
     body.add_child(build_attribution(document, attribution_html)) if attribution_html.present?
@@ -101,12 +111,17 @@ module EmailHtml
   def sanitize(html)
     document = Loofah.html5_document(html)
 
-    document.scrub!(Loofah::Scrubber.new { |node| scrub_node(node) if node.element? })
+    # Bottom up, so the children of a tag that is unwrapped have been cleaned before they are moved up.
+    document.scrub!(Loofah::Scrubber.new(direction: :bottom_up) { |node| scrub_node(node) })
 
     document
   end
 
   def scrub_node(node)
+    # Comments can hold conditional comments that Outlook renders as markup.
+    return node.remove if node.comment? || node.processing_instruction?
+    return unless node.element?
+
     name = node.name.downcase
 
     if DANGEROUS_TAGS.include?(name)
@@ -186,10 +201,21 @@ module EmailHtml
     container['data-attribution'] = 'true'
     container.inner_html = attribution_html
 
-    container.css('p').each do |paragraph|
-      paragraph['style'] = 'display: block !important; margin: 0 0 4px !important;'
+    container.css('*').each do |element|
+      display = element.name == 'a' ? 'inline' : 'block'
+      margin = element.name == 'p' ? ' margin: 0 0 4px !important;' : ''
+
+      element['style'] = "#{ATTRIBUTION_INNER_STYLE} display: #{display} !important;#{margin}"
     end
 
     container
+  end
+
+  def harden_root_elements(document, body)
+    [document.root, body].each do |element|
+      style = element['style'].to_s.strip.delete_suffix(';')
+
+      element['style'] = [style.presence, ROOT_STYLE].compact.join('; ')
+    end
   end
 end
